@@ -1,0 +1,24 @@
+.hero {
+  background-image: url('https://publish.purewow.net/wp-content/uploads/sites/2/2023/01/Ubuntu_best-healthy-restaurants-in-los-angeles-1.jpg?fit=1360%2C800');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+}
+
+.content {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}

@@ -1,0 +1,82 @@
+<div class="container">
+  <div class="left">
+    <h2 style="color: #000080;">CUSTOMIZATION</h2>
+    <ul class='pie'>
+      <li class='slice' (click)="filterByCategory('Veggies')">
+        <div class='slice-contents'>
+          <img [src]="selectedFoods['Veggies']?.image" alt="Veggies" >
+          <p>{{ selectedFoods['Veggies'] ? selectedFoods['Veggies'].name + ' - ' + selectedFoods['Veggies'].calories + ' Kcal' : 'Veggies' }}</p>
+        </div>
+      </li>
+      <li class='slice' (click)="filterByCategory('Protein')">
+        <div class='slice-contents'>
+          <img [src]="selectedFoods['Protein']?.image" alt="Protein">
+          <p>{{ selectedFoods['Protein'] ? selectedFoods['Protein'].name + ' - ' + selectedFoods['Protein'].calories + ' Kcal' : 'Protein' }}</p>
+        </div>
+      </li>
+      <li class='slice' (click)="filterByCategory('Grains')">
+        <div class='slice-contents'>
+          <img [src]="selectedFoods['Grains']?.image" alt="Grains">
+          <p>{{ selectedFoods['Grains'] ? selectedFoods['Grains'].name + ' - ' + selectedFoods['Grains'].calories + ' Kcal' : 'Grains' }}</p>
+        </div>
+      </li>
+      <li class='inner-pie'></li>
+    </ul>
+    <div class="calories-container">
+      <div class="calories">
+        <div class="flex flex-column gap-2">
+          <input
+            pInputText
+            id="kcal"
+            aria-describedby="kcal-help"
+            [value]="totalCalories + ' Kcal'"
+            readonly />
+        </div>
+      </div>
+      <p-button label="Add to cart" (click)="orderMeal()" [rounded]="true" />
+    </div>
+    <p-toast
+      position="bottom-center"
+      key="confirm"
+      (onClose)="onReject()"
+      [baseZIndex]="5000">
+      <ng-template let-message pTemplate="message">
+        <div class="flex flex-column align-items-start" style="flex: 1">
+          <div class="font-medium text-lg my-3 text-900">
+            {{ message.summary }}
+          </div>
+        </div>
+      </ng-template>
+    </p-toast>
+
+  </div>
+  <div class="right">
+    <p-iconField iconPosition="left">
+      <p-inputIcon styleClass="pi pi-search" />
+      <input type="text" pInputText placeholder="Search" [(ngModel)]="searchQuery" (input)="searchFoods()" style="width: 100%" />
+    </p-iconField>
+    <div class="categories">
+      <p-chip (click)="filterByCategory('Grains')" label="Grains" />
+      <p-chip (click)="filterByCategory('Veggies')" label="Veggies" />
+      <p-chip (click)="filterByCategory('Protein')" label="Protein" />
+    </div>
+    <div class="food-list">
+      <p-card *ngFor="let food of filteredFoods"
+              (click)="selectFood(food)"
+              header="{{ food.name }}">
+        <ng-template pTemplate="header">
+          <img [src]="food.image" [alt]="food.name" />
+        </ng-template>
+        <div class="card-footer">
+          <p-chip label="{{ food.calories }} Kcal" />
+          <p-chip label="${{ food.price }}" />
+        </div>
+        <ng-template pTemplate="footer">
+          <div class="flex gap-3 mt-1">
+            <p-tag value="{{ food.category }}" />
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+</div>
