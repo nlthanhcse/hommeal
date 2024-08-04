@@ -31,22 +31,21 @@ export class ShopMealPlansComponent {
   searchQuery = '';
   foods: Food[] = [
     // Grains
-    { name: 'Brown Rice', category: 'Grains', calories: 216, image: 'https://c1.wallpaperflare.com/preview/147/504/1015/rice-spoon-spoon-rice-eat.jpg', price: 11 },
-    { name: 'Quinoa', category: 'Grains', calories: 120, image: 'https://c4.wallpaperflare.com/wallpaper/925/35/581/food-quinoa-hd-wallpaper-preview.jpg', price: 24 },
-    { name: 'Oats', category: 'Grains', calories: 71, image: 'https://nutritionsource.hsph.harvard.edu/wp-content/uploads/2018/03/oats-701299_1920-768x562.jpg', price: 35 },
-    { name: 'Barley', category: 'Grains', calories: 123, image: 'https://domf5oio6qrcr.cloudfront.net/medialibrary/6159/ff717f2b-8a5b-4862-a65f-25b59e3f57b8.jpg', price: 22 },
+    { name: 'Rice', category: 'Grains', calories: 130, image: 'assets/images/food/rice.png', price: 11 },
+    { name: 'Vegetable Noodles', category: 'Grains', calories: 20, image: 'assets/images/food/vegetable-noodles.png', price: 24 },
+    { name: 'Shirataki Noodles', category: 'Grains', calories: 350, image: 'assets/images/food/shirataki-noodles.png', price: 35 },
+    { name: 'Mashed Potato', category: 'Grains', calories: 130, image: 'assets/images/food/mashed-potato.png', price: 22 },
 
     // Veggies
-    { name: 'Broccoli', category: 'Veggies', calories: 55, image: 'https://c1.wallpaperflare.com/preview/1006/685/277/appetite-broccoli-brocoli-broccolli-calories.jpg', price: 47 },
-    { name: 'Spinach', category: 'Veggies', calories: 23, image: 'https://c1.wallpaperflare.com/preview/158/999/779/bowl-green-healthy-leaf.jpg', price: 20 },
-    { name: 'Carrots', category: 'Veggies', calories: 41, image: 'https://c1.wallpaperflare.com/preview/104/183/748/carrots-vegetables-harvest-healthy.jpg', price: 10 },
-    { name: 'Bell Peppers', category: 'Veggies', calories: 20, image: 'https://c1.wallpaperflare.com/preview/654/599/746/food-cook-spice-ingredients.jpg', price: 15 },
+    { name: 'Oven-baked Vegetables', category: 'Veggies', calories: 151, image: 'assets/images/food/oven-baked-vegetables.png', price: 47 },
+    { name: 'Strawberry Burrata Salad', category: 'Veggies', calories: 115, image: 'assets/images/food/strawberry-burrata-salad.png', price: 20 },
+    { name: 'Vegetable Stir Fry', category: 'Veggies', calories: 160, image: 'assets/images/food/vegetable-stir-fry.png', price: 10 },
 
     // Protein
-    { name: 'Chicken Breast', category: 'Protein', calories: 165, image: 'https://c4.wallpaperflare.com/wallpaper/546/288/916/chicken-chicken-breast-food-healthy-eating-wallpaper-preview.jpg', price: 5 },
-    { name: 'Salmon', category: 'Protein', calories: 206, image: 'https://c1.wallpaperflare.com/preview/180/267/642/fillet-food-foodie-grilled.jpg', price: 31 },
-    { name: 'Tofu', category: 'Protein', calories: 76, image: 'https://c1.wallpaperflare.com/preview/668/495/832/slice-the-tofu-cut-a-part-conveyance-tofu-korean.jpg', price: 45 },
-    { name: 'Eggs', category: 'Protein', calories: 155, image: 'https://c1.wallpaperflare.com/preview/161/255/755/egg-chicken-food-white.jpg', price: 50 }
+    { name: 'Salmon in Orange Sauce', category: 'Protein', calories: 206, image: 'assets/images/food/salmon-in-orange-sauce.png', price: 5 },
+    { name: 'Beef with Black Pepper Sauce', category: 'Protein', calories: 250, image: 'assets/images/food/beef-with-black-pepper-sauce.png', price: 31 },
+    { name: 'Baked Mushrooms Stuffed with Neat', category: 'Protein', calories: 266, image: 'assets/images/food/baked-mushrooms-stuffed-with-meat.png', price: 45 },
+    { name: 'Gochujang Grilled Mackerel', category: 'Protein', calories: 215, image: 'assets/images/food/gochujang-grilled-mackerel.png', price: 50 }
   ];
   filteredFoods = this.foods;
   selectedFoods: { [key: string]: Food | null } = {
