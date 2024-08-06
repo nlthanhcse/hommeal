@@ -5,10 +5,10 @@
   </div>
   <ul>
     <li><a routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
-    <li><a routerLink="/about" routerLinkActive="active-link">About</a></li>
+    <li><a routerLink="/order-meals" routerLinkActive="active-link">Our Menu</a></li>
     <li><a routerLink="/shop-meal-plans" routerLinkActive="active-link">Shop Meal Plans</a></li>
-    <li><a routerLink="/recipes" routerLinkActive="active-link">Recipes</a></li>
     <li><a routerLink="/contact" routerLinkActive="active-link">Contact</a></li>
+    <li><a routerLink="/about" routerLinkActive="active-link">About</a></li>
   </ul>
   <div class="nav-icons">
     <div class="notification-icon" (click)="openNotifications()">
@@ -33,23 +33,82 @@
 <div class="cart-sidebar" [class.open]="isCartOpen">
   <div class="cart-content">
     <h2 class="header-with-close">Shopping cart <i class="fa-solid fa-xmark" (click)="toggleCart()"></i></h2>
-    <p-table [value]="selectedFoods"
+    <p-table *ngIf="selectedMealPlans.length"
+             [value]="selectedMealPlans"
              styleClass="p-datatable-striped">
+      <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+          Meal Plans
+        </div>
+      </ng-template>
       <ng-template pTemplate="body" let-item>
         <tr>
-          <td><img height="100px" width="150px" [src]="item.image" alt="{{ item.name }}" class="shadow-4"></td>
-          <td>{{ item.name }}</td>
-          <td>{{ item.category }}</td>
-          <td>{{ item.calories }}</td>
-          <td>${{ item.price }}</td>
+          <td style="display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;">
+            <span>
+              {{ item.name }}
+            </span>
+
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              (click)="removeMealPlan(item)" />
+          </td>
+        </tr>
+        <tr>
+          <p-table [value]="item.foods"
+                   styleClass="p-datatable-striped">
+            <ng-template pTemplate="body" let-food>
+              <tr>
+                <td class="td-1"><img height="100px" width="150px" [src]="food.image" alt="{{ food.name }}" class="shadow-4"></td>
+                <td class="td-2">{{ food.name }}</td>
+                <td class="td-3">{{ food.category }}</td>
+                <td class="td-4">{{ ApplicationUtils.displayCalories(food.calories) }}</td>
+                <td class="td-5">{{ ApplicationUtils.displayPrice(food.price) }}</td>
+                <td class="td-5"></td>
+              </tr>
+            </ng-template>
+          </p-table>
         </tr>
       </ng-template>
+    </p-table>
+
+    <p-table *ngIf="selectedMeals.length"
+             [value]="selectedMeals"
+             styleClass="p-datatable-striped">
+      <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+          Meals
+        </div>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td class="td-1"><img height="100px" width="150px" [src]="item.image" alt="{{ item.name }}" class="shadow-4"></td>
+          <td class="td-2">{{ item.name }}</td>
+          <td class="td-3"></td>
+          <td class="td-4"></td>
+          <td class="td-5">{{ ApplicationUtils.displayPrice(item.price) }}</td>
+          <td class="td-5">
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              (click)="removeMeal(item)" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-table [value]="selectedMeals"
+             styleClass="p-datatable-striped">
       <ng-template pTemplate="summary">
         <div class="flex align-items-center justify-content-end">
-          Total Price: ${{ totalPrice }}
+          Total Price: {{ ApplicationUtils.displayPrice(totalPrice) }}
         </div>
       </ng-template>
     </p-table>
+
     <div class="payment-methods">
       <p>Payment Methods:</p>
       <div class="flex flex-wrap gap-3">
@@ -65,56 +124,110 @@
         </div>
       </div>
     </div>
-    <p-button [disabled]="!selectedPaymentMethod || selectedFoods.length == 0" label="Pay" (click)="pay()" [rounded]="true" />
+    <p-button [disabled]="!selectedPaymentMethod || (selectedMealPlans.length == 0 && selectedMeals.length == 0)" label="Pay" (click)="pay()" [rounded]="true" />
   </div>
 </div>
-<app-modal *ngIf="showOrderModal">
-  <p>You purchased the order successfully. Please check the progress in <a (click)="toggleOrders()">Orders</a>.</p>
-</app-modal>
-<app-modal *ngIf="showOrdersModal">
-  <h2 class="header-with-close">Orders <i class="fa-solid fa-xmark" (click)="toggleOrders()"></i></h2>
-  <p-table [value]="orders" [tableStyle]="{ 'min-width': '50rem' }">
+
+<p-toast
+  position="bottom-center"
+  key="confirm"
+  (onClose)="onReject()"
+  [baseZIndex]="5000">
+  <ng-template pTemplate="message">
+    <div class="flex flex-column align-items-start" style="flex: 1">
+      <div class="font-medium text-lg my-3 text-900">
+        You purchased the order successfully. Please check the progress in <a (click)="toggleOrders()">Orders</a>.
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+
+<p-dialog
+  header="Orders"
+  [modal]="true"
+  [(visible)]="showOrdersModal"
+  [style]="{ width: '80rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+  <p-table [value]="orders"
+           styleClass="p-datatable-striped">
     <ng-template pTemplate="header">
       <tr>
         <th>No</th>
         <th>Total price</th>
         <th>Status</th>
+        <th>Payment method</th>
         <th>Action</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-order let-rowIndex="rowIndex">
       <tr>
         <td>{{ rowIndex + 1 }}</td>
-        <td>${{ order.totalPrice }}</td>
+        <td>{{ ApplicationUtils.displayPrice(order.totalPrice) }}</td>
         <td>{{ order.status }}</td>
+        <td>{{ order.paymentMethod }}</td>
         <td>
-          <button (click)="toggleOrderDetails(order)">Order Details</button>
-          <app-modal *ngIf="order.showDetails">
-            <h4 class="header-with-close">Order Details: <i class="fa-solid fa-xmark" (click)="toggleOrderDetails(order)"></i></h4>
+          <p-button (click)="toggleOrderDetails(order)"
+                    label="Order Details" [rounded]="true" />
 
-            <p-table [value]="order.items" [tableStyle]="{ 'min-width': '50rem' }">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Image</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Calories</th>
-                  <th>Price</th>
-                </tr>
+          <p-dialog
+            header="Order Details"
+            [modal]="true"
+            [(visible)]="order.showDetails"
+            [style]="{ width: '80rem', height: '50rem'}"
+            [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+
+            <p-table *ngIf="order.mealPlans.length"
+                     [value]="order.mealPlans"
+                     styleClass="p-datatable-striped"
+                     class="order-details">
+              <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                  Meal Plans
+                </div>
               </ng-template>
-              <ng-template pTemplate="body" let-item>
+              <ng-template pTemplate="body" let-mealPlan>
                 <tr>
-                  <td><img height="100px" width="150px" [src]="item.image" alt="{{ item.name }}"></td>
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.category }}</td>
-                  <td>{{ item.calories }}</td>
-                  <td>${{ item.price }}</td>
+                  <td colspan="5">{{ mealPlan.name }}</td>
+                </tr>
+                <tr>
+                  <p-table [value]="mealPlan.foods"
+                           styleClass="p-datatable-striped">
+                    <ng-template pTemplate="body" let-food>
+                      <tr>
+                        <td class="td-1"><img height="100px" width="150px" [src]="food.image" alt="{{ food.name }}" class="shadow-4"></td>
+                        <td class="td-2">{{ food.name }}</td>
+                        <td class="td-3">{{ food.category }}</td>
+                        <td class="td-4">{{ ApplicationUtils.displayCalories(food.calories) }}</td>
+                        <td class="td-5">{{ ApplicationUtils.displayPrice(food.price) }}</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
                 </tr>
               </ng-template>
             </p-table>
-          </app-modal>
+
+            <p-table *ngIf="order.meals.length"
+                     [value]="order.meals"
+                     styleClass="p-datatable-striped"
+                     class="order-details">
+              <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                  Meals
+                </div>
+              </ng-template>
+              <ng-template pTemplate="body" let-meal>
+                <tr>
+                  <td class="td-1"><img height="100px" width="150px" [src]="meal.image" alt="{{ meal.name }}" class="shadow-4"></td>
+                  <td class="td-2">{{ meal.name }}</td>
+                  <td class="td-3"></td>
+                  <td class="td-4"></td>
+                  <td class="td-5">{{ ApplicationUtils.displayPrice(meal.price) }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-dialog>
         </td>
       </tr>
     </ng-template>
   </p-table>
-</app-modal>
+</p-dialog>

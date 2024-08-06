@@ -1,8 +1,8 @@
-export interface Food {
+export interface Meal {
   id: string;
   name: string;
-  category: string;
-  calories: number;
+  description: string;
+  tags: string[];
   image: string;
   price: number;
 }

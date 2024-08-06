@@ -29,11 +29,11 @@
             pInputText
             id="kcal"
             aria-describedby="kcal-help"
-            [value]="totalCalories + ' Kcal'"
+            [value]="ApplicationUtils.displayCalories(totalCalories)"
             readonly />
         </div>
       </div>
-      <p-button label="Add to cart" (click)="orderMeal()" [rounded]="true" />
+      <p-button [disabled]="notAllowAddToCart()" label="Add to cart" (click)="orderMeal()" [rounded]="true" />
     </div>
     <p-toast
       position="bottom-center"
@@ -68,8 +68,8 @@
           <img [src]="food.image" [alt]="food.name" />
         </ng-template>
         <div class="card-footer">
-          <p-chip label="{{ food.calories }} Kcal" />
-          <p-chip label="${{ food.price }}" />
+          <p-chip label="{{ ApplicationUtils.displayCalories(food.calories) }}" />
+          <p-chip label="{{ ApplicationUtils.displayPrice(food.price) }}" />
         </div>
         <ng-template pTemplate="footer">
           <div class="flex gap-3 mt-1">

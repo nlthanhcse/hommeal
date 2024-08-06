@@ -1,0 +1,62 @@
+<div class="order-meals-container">
+  <h1>Enjoy the convenience of healthy eating with our menu of delicious and nutritious meals prepared for you from breakfast to dinner. Each serving provides you ~480 - 500 calories. Place your order now!</h1>
+
+  <p-carousel
+    [value]="meals"
+    [numVisible]="4"
+    [numScroll]="2"
+    [circular]="true"
+    [responsiveOptions]="responsiveOptions">
+    <ng-template let-meal pTemplate="item">
+      <div class="border-1 surface-border border-round m-2 p-3">
+        <div class="mb-3">
+          <div class="relative mx-auto">
+            <img
+              style="object-fit: cover; max-height: 250px"
+              [src]="meal.image"
+              [alt]="meal.name"
+              class="w-full border-round" />
+            <p-tag
+              *ngIf="meal.tags.includes('vegan')"
+              value="Vegan"
+              severity="success"
+              class="absolute"
+              [ngStyle]="{ 'left.px': 5, 'top.px': 5 }" />
+          </div>
+        </div>
+        <div class="mb-3 font-bold h-2rem">
+          {{ meal.name }}
+        </div>
+
+        <div class="mb-3 font-normal h-8rem">
+          {{ meal.description }}
+        </div>
+
+        <div class="flex justify-content-between align-items-center">
+          <div class="mt-0 font-semibold text-xl">
+            {{ ApplicationUtils.displayPrice(meal.price) }}
+          </div>
+          <span>
+                        <p-button icon="pi pi-shopping-cart"
+                                  styleClass="ml-2"
+                                  (click)="addToCart(meal)" />
+                    </span>
+        </div>
+      </div>
+    </ng-template>
+  </p-carousel>
+
+  <p-toast
+    position="bottom-center"
+    key="confirm"
+    (onClose)="onReject()"
+    [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+      <div class="flex flex-column align-items-start" style="flex: 1">
+        <div class="font-medium text-lg my-3 text-900">
+          {{ message.summary }}
+        </div>
+      </div>
+    </ng-template>
+  </p-toast>
+</div>

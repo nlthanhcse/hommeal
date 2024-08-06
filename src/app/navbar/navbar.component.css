@@ -184,7 +184,7 @@ ul li a.active-link::after {
   position: fixed;
   top: 0;
   right: 0;
-  width: 500px;
+  width: 800px;
   height: 100%;
   background-color: #fff;
   box-shadow: -2px 0 5px rgba(0,0,0,0.5);
@@ -195,13 +195,35 @@ ul li a.active-link::after {
 
 .cart-sidebar.open {
   transform: translateX(0);
+  overflow-y: auto;
 }
 
 .cart-content {
   padding: 20px;
 }
 
-.cart-content img {
+td.td-1 {
+  min-width: 100px;
+}
+
+td.td-2 {
+  min-width: 150px;
+}
+
+td.td-3 {
+  min-width: 105px;
+}
+
+td.td-4 {
+  min-width: 105px;
+}
+
+td.td-5 {
+  min-width: 100px;
+  text-align: right;
+}
+
+.cart-content img, .order-details img{
   width: 50px;
   height: 50px;
   object-fit: cover;
@@ -260,4 +282,8 @@ app-modal a {
 
 app-modal a:hover {
   color: #0056b3;
+}
+
+::ng-deep .p-dialog {
+  max-height: none;
 }

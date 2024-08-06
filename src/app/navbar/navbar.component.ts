@@ -10,33 +10,65 @@ import {Button} from "primeng/button";
 import {DropdownModule} from "primeng/dropdown";
 import {RadioButtonModule} from "primeng/radiobutton";
 import {FormsModule} from "@angular/forms";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
+import {Constant, OrderStatus} from "../shared/constant";
+import {ApplicationUtils} from "../shared/util";
+import {MealPlan} from "../shared/meal-plan.model";
+import {MealService} from "../shared/meal.service";
+import {Meal} from "../shared/meal.model";
+import {DialogModule} from "primeng/dialog";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppModalComponent, TableModule, Button, DropdownModule, RadioButtonModule, FormsModule],
+  imports: [CommonModule, RouterModule, AppModalComponent, TableModule, Button, DropdownModule, RadioButtonModule, FormsModule, ToastModule, DialogModule],
+  providers: [MessageService],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
-  constructor(private foodService: FoodService) {}
+  constructor(private foodService: FoodService, private mealService: MealService, private messageService: MessageService) {}
 
   userInitial = 'A'; // Placeholder for user initial, replace with actual data
   showUserDropdown = false;
   isCartOpen = false;
   selectedPaymentMethod: string | null = null;
-  showOrderModal = false;
   showOrdersModal = false;
   cartItemsCount = 0; // Placeholder for cart items count, replace with actual data
-  selectedFoods: Food[] = [];
+  selectedMealPlans: MealPlan[] = [];
+  selectedMeals: Meal[] = [];
   totalPrice = 0
-  orders:Order[] = [];
+  orders: Order[] = [];
   paymentMethods: string[] = ["Cash", "Visa", "MasterCard"];
 
   ngOnInit(): void {
     this.foodService.foods$.subscribe(foods => {
-      this.selectedFoods = foods;
-      this.cartItemsCount = foods.length;
+      if (foods && foods.length > 0) {
+        this.selectedMealPlans.push(
+          {
+            id: `${this.selectedMealPlans.length + 1}`,
+            name: `Custom ${this.selectedMealPlans.length + 1}`,
+            foods: foods
+          }
+        )
+      }
+
+      this.cartItemsCount = this.selectedMealPlans
+        .map(value => value.foods)
+        .flatMap(value => value)
+        .length + this.selectedMeals.length;
+    });
+
+    this.mealService.meals$.subscribe(meals => {
+      if (meals && meals.length > 0) {
+        this.selectedMeals = meals;
+      }
+
+      this.cartItemsCount = this.selectedMeals.length + this.selectedMealPlans
+        .map(value => value.foods)
+        .flatMap(value => value)
+        .length;
     });
   }
 
@@ -46,33 +78,47 @@ export class NavbarComponent {
 
   toggleCart() {
     this.isCartOpen = !this.isCartOpen;
-    this.totalPrice = this.selectedFoods.reduce((acc, {price}) => acc + price, 0);
+
+    this.totalPrice = this.calculateTotalPrice();
   }
 
-  selectPaymentMethod(method: string) {
-    this.selectedPaymentMethod = method;
+  private calculateTotalPrice() {
+    let mealPlansTotalPrice = this.selectedMealPlans.map(
+      mealPlan => mealPlan.foods
+    ).flatMap(value => value).reduce((acc, {price}) => acc + price, 0);
+
+    let mealTotalPrice = this.selectedMeals.reduce((acc, {price}) => acc + price, 0);
+    return mealPlansTotalPrice + mealTotalPrice;
   }
 
   pay() {
     if (this.selectedPaymentMethod) {
-      let firstFood: Food | null | undefined = this.selectedFoods.at(0)
       this.orders.push(
         {
-          firstItemName: firstFood ? firstFood.name : "",
+          id: `${this.orders.length + 1}`,
+          firstItemName: "",
           showDetails: false,
-          status: "Purchased",
-          totalPrice: this.selectedFoods.reduce((acc, {price}) => acc + price, 0),
-          items: this.selectedFoods
+          status: OrderStatus.PURCHASED,
+          totalPrice: this.calculateTotalPrice(),
+          paymentMethod: this.selectedPaymentMethod,
+          mealPlans: this.selectedMealPlans,
+          meals: this.selectedMeals
         }
       )
 
-      this.selectedFoods = [];
-      this.cartItemsCount = this.selectedFoods.length;
-      this.totalPrice = this.selectedFoods.reduce((acc, {price}) => acc + price, 0);
+      this.reset();
 
-      this.showOrderModal = true;
-      setTimeout(() => this.showOrderModal = false, 3000); // Automatically close after 3 seconds
+      this.messageService.add({ key: 'confirm', severity: 'success', summary: '' });
     }
+  }
+
+  private reset() {
+    this.mealService.setMeals([]);
+    this.foodService.setFoods([]);
+    this.selectedMealPlans = [];
+    this.selectedMeals = [];
+    this.cartItemsCount = 0;
+    this.totalPrice = 0;
   }
 
   toggleOrders() {
@@ -86,4 +132,28 @@ export class NavbarComponent {
   openNotifications() {
     // Add notification logic here
   }
+
+  onReject() {
+    this.messageService.clear('confirm');
+  }
+
+  removeMealPlan(mealPlan: MealPlan): void {
+    let index = this.selectedMealPlans.findIndex(value => value.id === mealPlan.id);
+    if (index > -1) {
+      this.selectedMealPlans.splice(index, 1);
+    }
+
+    this.totalPrice = this.calculateTotalPrice();
+  }
+
+  removeMeal(meal: Meal): void {
+    let index = this.selectedMeals.findIndex(value => value.id === meal.id);
+    if (index > -1) {
+      this.selectedMeals.splice(index, 1);
+    }
+
+    this.totalPrice = this.calculateTotalPrice();
+  }
+
+  protected readonly ApplicationUtils = ApplicationUtils;
 }

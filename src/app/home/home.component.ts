@@ -14,6 +14,6 @@ export class HomeComponent {
   constructor(private router: Router) { }
 
   orderNow() {
-    this.router.navigate(['/shop-meal-plans']);
+    this.router.navigate(['/order-meals']);
   }
 }
