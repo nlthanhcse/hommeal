@@ -4,20 +4,20 @@
     <ul class='pie'>
       <li class='slice' (click)="filterByCategory('Veggies')">
         <div class='slice-contents'>
-          <img [src]="selectedFoods['Veggies']?.image" alt="Veggies" >
-          <p>{{ selectedFoods['Veggies'] ? selectedFoods['Veggies'].name + ' - ' + selectedFoods['Veggies'].calories + ' Kcal' : 'Veggies' }}</p>
+          <img [style.visibility]="selectedFoods['Veggies']?'visible':'hidden'" style="transform: rotate(60deg)" [src]="selectedFoods['Veggies']?.image" alt="Veggies" >
+          <p style="transform: rotate(60deg) translateX(-32px)">{{ selectedFoods['Veggies'] ? selectedFoods['Veggies'].name + ' - ' + selectedFoods['Veggies'].calories + ' Kcal' : 'Veggies' }}</p>
         </div>
       </li>
       <li class='slice' (click)="filterByCategory('Protein')">
         <div class='slice-contents'>
-          <img [src]="selectedFoods['Protein']?.image" alt="Protein">
-          <p>{{ selectedFoods['Protein'] ? selectedFoods['Protein'].name + ' - ' + selectedFoods['Protein'].calories + ' Kcal' : 'Protein' }}</p>
+          <img [style.visibility]="selectedFoods['Protein']?'visible':'hidden'" style="transform: rotate(-60deg)" [src]="selectedFoods['Protein']?.image" alt="Protein">
+          <p style="transform: rotate(-60deg) translateY(-35px) translateX(20px)">{{ selectedFoods['Protein'] ? selectedFoods['Protein'].name + ' - ' + selectedFoods['Protein'].calories + ' Kcal' : 'Protein' }}</p>
         </div>
       </li>
       <li class='slice' (click)="filterByCategory('Grains')">
         <div class='slice-contents'>
-          <img [src]="selectedFoods['Grains']?.image" alt="Grains">
-          <p>{{ selectedFoods['Grains'] ? selectedFoods['Grains'].name + ' - ' + selectedFoods['Grains'].calories + ' Kcal' : 'Grains' }}</p>
+          <img [style.visibility]="selectedFoods['Grains']?'visible':'hidden'" style="transform: rotate(180deg)" [src]="selectedFoods['Grains']?.image" alt="Grains">
+          <p style="transform: rotate(180deg) translateY(30px) translateX(20px)">{{ selectedFoods['Grains'] ? selectedFoods['Grains'].name + ' - ' + selectedFoods['Grains'].calories + ' Kcal' : 'Grains' }}</p>
         </div>
       </li>
       <li class='inner-pie'></li>
@@ -33,7 +33,11 @@
             readonly />
         </div>
       </div>
-      <p-button [disabled]="notAllowAddToCart()" label="Add to cart" (click)="orderMeal()" [rounded]="true" />
+      <p-button [disabled]="notAllowAddToCart()"
+                icon="pi pi-shopping-cart"
+                label="Add to cart"
+                styleClass="ml-2"
+                (click)="orderMeal()" />
     </div>
     <p-toast
       position="bottom-center"

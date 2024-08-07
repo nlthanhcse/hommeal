@@ -11,22 +11,26 @@
     <li><a routerLink="/about" routerLinkActive="active-link">About</a></li>
   </ul>
   <div class="nav-icons">
-    <div class="notification-icon" (click)="openNotifications()">
-      <i class="fa-regular fa-bell"></i>
-    </div>
-    <div class="user-dropdown">
-      <div class="user-circle" (click)="toggleUserDropdown()">{{ userInitial }}</div>
-      <div class="dropdown-arrow" (click)="toggleUserDropdown()">▼</div>
-      <div class="dropdown-menu" *ngIf="showUserDropdown">
-        <span>Profile</span>
-        <span (click)="toggleOrders()">Orders</span>
-        <span>Logout</span>
-      </div>
-    </div>
-    <div class="cart-icon" (click)="toggleCart()">
-      <i class="fa-solid fa-cart-shopping"></i>
-      <div class="badge" *ngIf="cartItemsCount > 0">{{ cartItemsCount }}</div>
-    </div>
+
+    <p-toast />
+    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" />
+    <p-avatar
+      (click)="profileMenu.toggle($event)"
+      [style.cursor]="'pointer'"
+      label="{{ userInitial }}"
+      [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }"
+      shape="circle" />
+
+    <i class="pi pi-bell"></i>
+
+    <i *ngIf="cartItemsCount > 0; else noBadge"
+       class="pi pi-shopping-cart"
+       (click)="toggleCart()" pBadge value="{{ cartItemsCount }}"></i>
+    <ng-template #noBadge>
+      <i class="pi pi-shopping-cart"
+         (click)="toggleCart()"></i>
+    </ng-template>
+
   </div>
 </nav>
 <div class="overlay" [class.active]="isCartOpen" (click)="toggleCart()"></div>
@@ -109,6 +113,54 @@
       </ng-template>
     </p-table>
 
+    <div class="payment-details">
+      <p>Shipping details:</p>
+      <div class="top">
+        <p-floatLabel>
+          <input
+            pInputText
+            id="float-input-name"
+            aria-describedby="name-help"
+            [(ngModel)]="contact.name"
+          />
+          <label for="float-input-location">Name</label>
+        </p-floatLabel>
+
+        <p-floatLabel>
+          <input
+            pInputText
+            id="float-input-phone"
+            aria-describedby="phone-help"
+            [ngModel]="contact.phone"
+          />
+          <label for="float-input-phone">Phone</label>
+        </p-floatLabel>
+      </div>
+
+      <div class="bottom">
+        <p-floatLabel>
+          <input
+            pInputText
+            id="float-input-location"
+            aria-describedby="location-help"
+            [ngModel]="contact.location"
+          />
+          <label for="float-input-location">Location</label>
+        </p-floatLabel>
+
+        <p-floatLabel>
+          <textarea
+            id="float-input-note"
+            rows="5"
+            cols="30"
+            pInputTextarea
+            [ngModel]="contact.note">
+          </textarea>
+          <label for="float-input-note">Note</label>
+        </p-floatLabel>
+      </div>
+    </div>
+
     <div class="payment-methods">
       <p>Payment Methods:</p>
       <div class="flex flex-wrap gap-3">
@@ -124,6 +176,7 @@
         </div>
       </div>
     </div>
+
     <p-button [disabled]="!selectedPaymentMethod || (selectedMealPlans.length == 0 && selectedMeals.length == 0)" label="Pay" (click)="pay()" [rounded]="true" />
   </div>
 </div>
@@ -156,6 +209,7 @@
         <th>Total price</th>
         <th>Status</th>
         <th>Payment method</th>
+        <th>Shipping details</th>
         <th>Action</th>
       </tr>
     </ng-template>
@@ -165,6 +219,14 @@
         <td>{{ ApplicationUtils.displayPrice(order.totalPrice) }}</td>
         <td>{{ order.status }}</td>
         <td>{{ order.paymentMethod }}</td>
+        <td>
+            <ul>
+              <li>Name: {{ order.contact.name }}</li>
+              <li>Phone: {{ order.contact.phone }}</li>
+              <li>Location: {{ order.contact.location }}</li>
+              <li>Note: {{ order.contact.note }}</li>
+            </ul>
+        </td>
         <td>
           <p-button (click)="toggleOrderDetails(order)"
                     label="Order Details" [rounded]="true" />

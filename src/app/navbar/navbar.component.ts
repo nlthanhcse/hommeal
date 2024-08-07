@@ -11,18 +11,29 @@ import {DropdownModule} from "primeng/dropdown";
 import {RadioButtonModule} from "primeng/radiobutton";
 import {FormsModule} from "@angular/forms";
 import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import {MenuItem, MenuItemCommandEvent, MessageService} from "primeng/api";
 import {Constant, OrderStatus} from "../shared/constant";
 import {ApplicationUtils} from "../shared/util";
 import {MealPlan} from "../shared/meal-plan.model";
 import {MealService} from "../shared/meal.service";
 import {Meal} from "../shared/meal.model";
 import {DialogModule} from "primeng/dialog";
+import {MenubarModule} from "primeng/menubar";
+import {BadgeModule} from "primeng/badge";
+import {AvatarModule} from "primeng/avatar";
+import {MenuModule} from "primeng/menu";
+import {InputGroupModule} from "primeng/inputgroup";
+import {InputGroupAddonModule} from "primeng/inputgroupaddon";
+import {InputTextModule} from "primeng/inputtext";
+import {InputMaskModule} from "primeng/inputmask";
+import {FloatLabelModule} from "primeng/floatlabel";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import {Contact} from "../shared/contact.model";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppModalComponent, TableModule, Button, DropdownModule, RadioButtonModule, FormsModule, ToastModule, DialogModule],
+  imports: [CommonModule, RouterModule, AppModalComponent, TableModule, Button, DropdownModule, RadioButtonModule, FormsModule, ToastModule, DialogModule, MenubarModule, BadgeModule, AvatarModule, MenuModule, InputGroupModule, InputGroupAddonModule, InputTextModule, InputMaskModule, FloatLabelModule, InputTextareaModule],
   providers: [MessageService],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
@@ -40,7 +51,15 @@ export class NavbarComponent {
   selectedMeals: Meal[] = [];
   totalPrice = 0
   orders: Order[] = [];
-  paymentMethods: string[] = ["Cash", "Visa", "MasterCard"];
+  paymentMethods: string[] = ["Paypal", "Cash", "Visa", "MasterCard"];
+  profileMenuItems: MenuItem[] | undefined;
+
+  contact: Contact = {
+    name: '',
+    phone: '',
+    location: '',
+    note: '',
+  };
 
   ngOnInit(): void {
     this.foodService.foods$.subscribe(foods => {
@@ -70,10 +89,23 @@ export class NavbarComponent {
         .flatMap(value => value)
         .length;
     });
-  }
 
-  toggleUserDropdown() {
-    this.showUserDropdown = !this.showUserDropdown;
+    this.profileMenuItems = [
+      {
+        items: [
+          {
+            label: 'Profile'
+          },
+          {
+            label: 'Orders',
+            command: () => this.toggleOrders()
+          },
+          {
+            label: 'Logout'
+          }
+        ]
+      }
+    ];
   }
 
   toggleCart() {
@@ -102,7 +134,8 @@ export class NavbarComponent {
           totalPrice: this.calculateTotalPrice(),
           paymentMethod: this.selectedPaymentMethod,
           mealPlans: this.selectedMealPlans,
-          meals: this.selectedMeals
+          meals: this.selectedMeals,
+          contact: this.contact
         }
       )
 
@@ -119,6 +152,13 @@ export class NavbarComponent {
     this.selectedMeals = [];
     this.cartItemsCount = 0;
     this.totalPrice = 0;
+
+    this.contact = {
+      name: '',
+      phone: '',
+      location: '',
+      note: '',
+    };
   }
 
   toggleOrders() {
@@ -127,10 +167,6 @@ export class NavbarComponent {
 
   toggleOrderDetails(order: { showDetails: boolean; }) {
     order.showDetails = !order.showDetails;
-  }
-
-  openNotifications() {
-    // Add notification logic here
   }
 
   onReject() {

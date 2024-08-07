@@ -287,3 +287,33 @@ app-modal a:hover {
 ::ng-deep .p-dialog {
   max-height: none;
 }
+
+.payment-details {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+
+  p-floatlabel {
+    margin: 20px 0;
+  }
+
+  .top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    input {
+      width: 350px;
+    }
+  }
+
+  .bottom {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    input, textarea {
+      width: 100%;
+    }
+  }
+}

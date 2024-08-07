@@ -1,6 +1,6 @@
-import {Food} from "./food.model";
 import {Meal} from "./meal.model";
 import {MealPlan} from "./meal-plan.model";
+import {Contact} from "./contact.model";
 
 export interface Order {
   id: string;
@@ -11,4 +11,5 @@ export interface Order {
   paymentMethod: string;
   mealPlans: MealPlan[];
   meals: Meal[];
+  contact: Contact;
 }
