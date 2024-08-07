@@ -11,22 +11,26 @@
     <li><a routerLink="/about" routerLinkActive="active-link">About</a></li>
   </ul>
   <div class="nav-icons">
-    <div class="notification-icon" (click)="openNotifications()">
-      <i class="fa-regular fa-bell"></i>
-    </div>
-    <div class="user-dropdown">
-      <div class="user-circle" (click)="toggleUserDropdown()">{{ userInitial }}</div>
-      <div class="dropdown-arrow" (click)="toggleUserDropdown()">▼</div>
-      <div class="dropdown-menu" *ngIf="showUserDropdown">
-        <span>Profile</span>
-        <span (click)="toggleOrders()">Orders</span>
-        <span>Logout</span>
-      </div>
-    </div>
-    <div class="cart-icon" (click)="toggleCart()">
-      <i class="fa-solid fa-cart-shopping"></i>
-      <div class="badge" *ngIf="cartItemsCount > 0">{{ cartItemsCount }}</div>
-    </div>
+
+    <p-toast />
+    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" />
+    <p-avatar
+      (click)="profileMenu.toggle($event)"
+      [style.cursor]="'pointer'"
+      label="{{ userInitial }}"
+      [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }"
+      shape="circle" />
+
+    <i class="pi pi-bell"></i>
+
+    <i *ngIf="cartItemsCount > 0; else noBadge"
+       class="pi pi-shopping-cart"
+       (click)="toggleCart()" pBadge value="{{ cartItemsCount }}"></i>
+    <ng-template #noBadge>
+      <i class="pi pi-shopping-cart"
+         (click)="toggleCart()"></i>
+    </ng-template>
+
   </div>
 </nav>
 <div class="overlay" [class.active]="isCartOpen" (click)="toggleCart()"></div>
@@ -109,6 +113,58 @@
       </ng-template>
     </p-table>
 
+    <div *ngIf="selectedMealPlans.length || selectedMeals.length"
+          class="payment-details">
+      <p>Shipping details:</p>
+      <div class="top">
+        <p-floatLabel>
+          <input
+            pInputText
+            id="float-input-name"
+            aria-describedby="name-help"
+            [(ngModel)]="contact.name"
+            [ngClass]="{'ng-invalid ng-dirty': !contact.name}"
+          />
+          <label for="float-input-name">Name</label>
+        </p-floatLabel>
+
+        <p-floatLabel>
+          <input
+            pInputText
+            id="float-input-phone"
+            aria-describedby="phone-help"
+            [(ngModel)]="contact.phone"
+            [ngClass]="{'ng-invalid ng-dirty': !contact.phone}"
+          />
+          <label for="float-input-phone">Phone</label>
+        </p-floatLabel>
+      </div>
+
+      <div class="bottom">
+        <p-floatLabel>
+          <input
+            pInputText
+            id="float-input-location"
+            aria-describedby="location-help"
+            [(ngModel)]="contact.location"
+            [ngClass]="{'ng-invalid ng-dirty': !contact.location}"
+          />
+          <label for="float-input-location">Location</label>
+        </p-floatLabel>
+
+        <p-floatLabel>
+          <textarea
+            id="float-input-note"
+            rows="5"
+            cols="30"
+            pInputTextarea
+            [(ngModel)]="contact.note">
+          </textarea>
+          <label for="float-input-note">Note</label>
+        </p-floatLabel>
+      </div>
+    </div>
+
     <div class="payment-methods">
       <p>Payment Methods:</p>
       <div class="flex flex-wrap gap-3">
@@ -124,19 +180,35 @@
         </div>
       </div>
     </div>
+
+
     <p-button [disabled]="!selectedPaymentMethod || (selectedMealPlans.length == 0 && selectedMeals.length == 0)" label="Pay" (click)="pay()" [rounded]="true" />
   </div>
 </div>
 
 <p-toast
-  position="bottom-center"
-  key="confirm"
+  position="top-left"
+  key="toast-insufficient-shipping-details"
   (onClose)="onReject()"
   [baseZIndex]="5000">
-  <ng-template pTemplate="message">
+  <ng-template let-message pTemplate="message">
     <div class="flex flex-column align-items-start" style="flex: 1">
       <div class="font-medium text-lg my-3 text-900">
-        You purchased the order successfully. Please check the progress in <a (click)="toggleOrders()">Orders</a>.
+        {{ message.summary }}
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+
+<p-toast
+  position="top-left"
+  key="toast-pay"
+  (onClose)="onReject()"
+  [baseZIndex]="5000">
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-column align-items-start" style="flex: 1">
+      <div class="font-medium text-lg my-3 text-900">
+        {{ message.summary }}
       </div>
     </div>
   </ng-template>
@@ -146,7 +218,7 @@
   header="Orders"
   [modal]="true"
   [(visible)]="showOrdersModal"
-  [style]="{ width: '80rem' }"
+  [style]="{ width: '80rem', height: '50rem'}"
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
   <p-table [value]="orders"
            styleClass="p-datatable-striped">
@@ -156,6 +228,7 @@
         <th>Total price</th>
         <th>Status</th>
         <th>Payment method</th>
+        <th>Shipping details</th>
         <th>Action</th>
       </tr>
     </ng-template>
@@ -166,7 +239,81 @@
         <td>{{ order.status }}</td>
         <td>{{ order.paymentMethod }}</td>
         <td>
+          <div>
+            <p>Name: {{ order.contact.name }}</p>
+            <p>Phone: {{ order.contact.phone }}</p>
+            <p>Location: {{ order.contact.location }}</p>
+            <p>Note: {{ order.contact.note }}</p>
+          </div>
+
+          <p-button (click)="openEditShippingDetails(order.contact)"
+                    id="{{order.contact.id}}"
+                    label="Edit"
+                    icon="pi pi-pen-to-square"
+                    [rounded]="true" />
+
+          <p-dialog class="edit-shipping-details"
+                    header="Edit Shipping Details"
+                    [modal]="true"
+                    [(visible)]="editShippingDetails"
+                    [style]="{ width: '40rem' }">
+            <div class="top">
+              <p-floatLabel>
+                <input
+                  pInputText
+                  id="float-input-name2"
+                  aria-describedby="name-help"
+                  [(ngModel)]="selectedShippingDetails.name"
+                  [ngClass]="{'ng-invalid ng-dirty': !selectedShippingDetails.name}"
+                />
+                <label for="float-input-name2">Name</label>
+              </p-floatLabel>
+
+              <p-floatLabel>
+                <input
+                  pInputText
+                  id="float-input-phone2"
+                  aria-describedby="phone-help"
+                  [(ngModel)]="selectedShippingDetails.phone"
+                  [ngClass]="{'ng-invalid ng-dirty': !selectedShippingDetails.phone}"
+                />
+                <label for="float-input-phone2">Phone</label>
+              </p-floatLabel>
+            </div>
+
+            <div class="bottom">
+              <p-floatLabel>
+                <input
+                  pInputText
+                  id="float-input-location2"
+                  aria-describedby="location-help"
+                  [(ngModel)]="selectedShippingDetails.location"
+                  [ngClass]="{'ng-invalid ng-dirty': !selectedShippingDetails.location}"
+                />
+                <label for="float-input-location2">Location</label>
+              </p-floatLabel>
+
+              <p-floatLabel>
+                <textarea
+                  id="float-input-note2"
+                  rows="5"
+                  cols="30"
+                  pInputTextarea
+                  [(ngModel)]="selectedShippingDetails.note">
+                </textarea>
+                <label for="float-input-note2">Note</label>
+              </p-floatLabel>
+            </div>
+
+            <div class="flex justify-content-end gap-2">
+              <p-button label="Cancel" severity="secondary" (onClick)="cancelEditShippingDetails()" />
+              <p-button label="Save" (onClick)="saveShippingDetails(order)" />
+            </div>
+          </p-dialog>
+        </td>
+        <td>
           <p-button (click)="toggleOrderDetails(order)"
+                    severity="info"
                     label="Order Details" [rounded]="true" />
 
           <p-dialog
